@@ -1,0 +1,81 @@
+<html>
+
+<head>
+
+<script src="jquery-3.5.1.min.js"></script>
+<script src="sha256.js"></script>
+<script>
+$(document).ready(function(){
+    $("#get_request_form").submit(function(event){
+        event.preventDefault(); //prevent default action
+        var url = $(this).attr("action"); //get form action url
+        var form_data = $(this).serialize(); //Encode form elements for submission
+        $('#server-response').html(''); // clear server response line
+        $.get( url, form_data, function( response ) {
+            var target_hash = response.target_hash;
+            var puzzle_to_solve= response.puzzle_to_solve;
+            var puzzle_strength = response.puzzle_strength;
+            var timestamp = response.timestamp;
+            var n = puzzle_strength; // n  is #bits to brute force
+
+            var full_nibbles_missing = Math.floor(puzzle_strength/4);
+            var zero_pad = '0'.repeat(full_nibbles_missing);
+            var puzzle_solution = "";
+            var full_nibble_mask = (1<<(full_nibbles_missing*4))-1;
+            var partial_nibble = parseInt( "0x" + puzzle_to_solve.substr(puzzle_to_solve.length-1,1), 16);
+            var left_puzzle_solution = puzzle_to_solve.substr(0,puzzle_to_solve.length-1);
+            // main loop
+            for (i = 0; i < (1 << n); ++i) {
+                var i_masked = i&full_nibble_mask;
+                var nibbles_to_append = (zero_pad + i_masked.toString(16)).slice(-full_nibbles_missing); // https://stackoverflow.com/a/42369035
+                var middle_nibble = (partial_nibble + (i >> (full_nibbles_missing<<2))).toString(16);
+                var candidate_preimage = left_puzzle_solution + middle_nibble + nibbles_to_append;
+                var hash = sha256(candidate_preimage);
+                if (hash === target_hash) {
+                    puzzle_solution = candidate_preimage;
+                    break;
+                }
+            }
+            
+            if (puzzle_solution==="") {
+                $('#server-response').html("Uh oh, something's broken!!!");
+            }
+            else {
+                var new_form_data = form_data+"&puzzle_solution="+puzzle_solution+"&timestamp="+timestamp;
+                console.log(new_form_data);
+                $.get( url, new_form_data, function( response2 ) {
+                    var message = response2.message;
+                    $('#server-response').html(message);
+                });
+            }
+       });
+    });
+});
+</script>
+
+</head>
+
+
+<body>
+<h1>Client Puzzle Protocol Illustrated</h1>
+
+
+
+<p>Enter key/value pair in fields, then click "Submit" to submit the form:</p>
+
+<form id="get_request_form" action="http://127.0.0.1:5000/search" method="get">
+  <div>
+  Enter a search string: <input type="text" name="search"><br><br>
+  </div>
+  <div>
+  <button>submit</button>
+  </div>
+  <div id="server-response"> </div>
+</form>
+
+
+
+
+
+</body>
+</html>
