@@ -8,8 +8,8 @@ const app = express();
 const port = 5000;
 const secret=crypto.randomBytes(60);
 
-puzzle_strength=17; // default value -- this can be changed using env variable
-time_limit=2000; //default time limit -- this can be changed using env variable
+puzzle_strength=16; // default value -- this can be changed using env variable
+time_limit=5000; //default time limit -- this can be changed using env variable
 time = Date.now();
 
 giphy_url = "";
@@ -165,7 +165,7 @@ app.get('/search', function(req, res)
                     if (giphy_api_key === "") 
                         var r = { "status": "success", "message": "Puzzle has been solved, but no Giphy API key has been configured so sorry for the boring result", "image_url": giphy_url };
                     else
-                        var r = { "status": "success", "message": "Puzzle has been solved!", "image_url": giphy_url };
+                        var r = { "status": "success", "message": "Puzzle has been solved!  Image from Giphy served below.", "image_url": giphy_url };
                     console.log(r);
                     res.send(r);
                 } );
