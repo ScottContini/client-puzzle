@@ -44,8 +44,11 @@ $(document).ready(function(){
                 var new_form_data = form_data+"&puzzle_solution="+puzzle_solution+"&timestamp="+timestamp;
                 console.log(new_form_data);
                 $.get( url, new_form_data, function( response2 ) {
+                    console.log(response2);
                     var message = response2.message;
+                    var giphy_url = response2.image_url;
                     $('#server-response').html(message);
+                    $('#giphy-image').html('<img src="'+giphy_url+'">');
                 });
             }
        });
@@ -70,7 +73,8 @@ $(document).ready(function(){
   <div>
   <button>submit</button>
   </div>
-  <div id="server-response"> </div>
+  <div id="server-response"> </div> <br>
+  <div id="giphy-image"> </div>
 </form>
 
 

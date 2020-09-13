@@ -1,18 +1,81 @@
-var express = require('express');
-var crypto = require('crypto');
-
+const express = require('express');
+const crypto = require('crypto');
+const request = require('request');
 const url = require('url');
 const querystring = require('querystring');
 
 const app = express();
 const port = 5000;
 const secret=crypto.randomBytes(60);
+
 puzzle_strength=17; // default value -- this can be changed using env variable
 time_limit=2000; //default time limit -- this can be changed using env variable
 time = Date.now();
 
+giphy_url = "";
+giphy_api_key = "";
+if (typeof process.env.giphy_api_key != 'undefined')
+    giphy_api_key = process.env.giphy_api_key;
+
 
 app.use(express.static('public'));
+
+
+
+// This code taken from https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
+function downloadPage(url) {
+    return new Promise((resolve, reject) => {
+        request(url, (error, response, body) => {
+            if (error) reject(error);
+            if (response.statusCode != 200) {
+                reject('Invalid status code <' + response.statusCode + '>');
+            }
+            resolve(body);
+        });
+    });
+}
+
+async function search_giphy( search_term, _callback ) {
+    console.log("api key is " + giphy_api_key);
+    if (giphy_api_key == "") {
+        console.log("It is undefiuned");
+        var rand = Math.floor((Math.random()*4));
+        console.log(rand);
+        // no API key provided :-( , just return default something boring
+        switch (rand) {
+            case 0:
+                giphy_url = "https://media2.giphy.com/media/3o6YfT6YHxfCwfyvvy/giphy.gif";
+                break;
+            case 1:
+                giphy_url = "https://media3.giphy.com/media/LT0fzPk5V1fLJEWDMu/giphy.gif";
+                break;
+            case 2:
+                giphy_url = "https://media2.giphy.com/media/gIfv29q3ULtqjYTR7B/giphy.gif";
+                break;
+            case 3:
+                giphy_url = "https://media4.giphy.com/media/92ybGNsaLsfuM/giphy.gif";
+                break;
+        }
+    }
+    else {
+        var url = 'https://api.giphy.com/v1/gifs/random?api_key='+giphy_api_key+'&tag=' + search_term;
+        try {
+            const response = await downloadPage(url);
+            r = JSON.parse(response);
+            giphy_url = r.data.image_url;
+            if (giphy_url === undefined)
+                // nothing found -- give a default url
+                giphy_url = "https://media4.giphy.com/media/QzBvpfKuIVBcPmXS0R/giphy.gif";
+        } catch (error) {
+            console.log("got an error!");
+            // just return some stupid response
+            giphy_url = 'https://media1.giphy.com/media/3ohhwDGmpiXTv53VXW/giphy.gif';
+        }
+    }
+    _callback();
+}
+
+
 
 
 app.get('/', function (req, res)
@@ -67,6 +130,7 @@ app.get('/search', function(req, res)
 {
     var parsedUrl = url.parse(req.url);
     var parsedQs = querystring.parse(parsedUrl.query);
+    var search = "";
     time = Date.now();
     //console.log(parsedQs);
     
@@ -81,6 +145,9 @@ app.get('/search', function(req, res)
         else if (key === "timestamp") {
             start_time = parseInt(parsedQs.timestamp);
         }
+        else if (key === "search") {
+            search = parsedQs.search;
+        }
     if (typeof provided_puzzle_solution != undefined && provided_puzzle_solution) {
         // solution has been provided -- check it
         var elapsed_time = time - start_time;
@@ -91,8 +158,17 @@ app.get('/search', function(req, res)
             time_limit = process.env.time_limit;
         if (valid) {
             if (elapsed_time <= time_limit) {
-                var r = { "status": "success", "message": "Puzzle has been solved!" };
-                res.send(r);
+                giphy_url="";
+                giphy_url = search_giphy(search, function()
+                {
+                    console.log("giphy url is " + giphy_url);
+                    if (giphy_api_key === "") 
+                        var r = { "status": "success", "message": "Puzzle has been solved, but no Giphy API key has been configured so sorry for the boring result", "image_url": giphy_url };
+                    else
+                        var r = { "status": "success", "message": "Puzzle has been solved!", "image_url": giphy_url };
+                    console.log(r);
+                    res.send(r);
+                } );
             }
             else {
                 var r = { "status": "failure", "message": "Puzzle has expired!" };
@@ -118,6 +194,8 @@ app.get('/search', function(req, res)
 
 
 });
+
+
 
 app.listen(port, function () {
   console.log('Example app listening on port ' + port + '!');
