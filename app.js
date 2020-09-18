@@ -165,7 +165,7 @@ app.get('/search', function(req, res)
                     if (giphy_api_key === "") 
                         var r = { "status": "success", "message": "Puzzle has been solved, but no Giphy API key has been configured so sorry for the boring result", "image_url": giphy_url };
                     else
-                        var r = { "status": "success", "message": "Puzzle has been solved!  Image from Giphy served below.", "image_url": giphy_url };
+                        var r = { "status": "success", "message": "Puzzle has been solved!  Image served below (powered by Giphy).", "image_url": giphy_url };
                     console.log(r);
                     res.send(r);
                 } );

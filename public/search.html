@@ -10,7 +10,7 @@ $(document).ready(function(){
         event.preventDefault(); //prevent default action
         var url = $(this).attr("action"); //get form action url
         var form_data = $(this).serialize(); //Encode form elements for submission
-        $('#server-response').html(''); // clear server response line
+        $('#server-response').html('Solving puzzle...'); 
         $.get( url, form_data, function( response ) {
             var target_hash = response.target_hash;
             var puzzle_to_solve= response.puzzle_to_solve;
