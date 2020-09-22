@@ -11,12 +11,12 @@ The backend runs in Node.js.  For most amusement, provide a
 
 # Running the demo
 
-This app required Node.js and Express.
+This app requires Node.js and Express.
 It is desirable (but not required)  to set a 
 [Giphy API Key](https://support.giphy.com/hc/en-us/articles/360020283431-Request-A-GIPHY-API-Key) through the environmental variable
 `giphy_api_key`.
 
-Run the demo by  by typing `node app.js` and then open your 
+Run the demo  by typing `node app.js` and then open your 
 favourite browser to 
 [http://127.0.0.1:5000/search.html](http://127.0.0.1:5000/search.html).
 Type something in the search and it will return a result from
