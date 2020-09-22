@@ -10,7 +10,7 @@ const secret=crypto.randomBytes(60);
 
 puzzle_strength=16; // default value -- this can be changed using env variable
 time_limit=5000; //default time limit -- this can be changed using env variable
-time = Date.now();
+start_time = Date.now();
 
 giphy_url = "";
 giphy_api_key = "";
@@ -36,12 +36,11 @@ function downloadPage(url) {
 }
 
 async function search_giphy( search_term, _callback ) {
-    console.log("api key is " + giphy_api_key);
     if (giphy_api_key == "") {
-        console.log("It is undefiuned");
+        console.log("Giphy API key is undefined");
         var rand = Math.floor((Math.random()*4));
         console.log(rand);
-        // no API key provided :-( , just return default something boring
+        // no API key provided :-( , just return one of these boring gifs
         switch (rand) {
             case 0:
                 giphy_url = "https://media2.giphy.com/media/3o6YfT6YHxfCwfyvvy/giphy.gif";
@@ -97,7 +96,7 @@ function compute_puzzle( params ) {
     params_with_secret_and_timestamp.timestamp = timestamp.toString(10);
     params_with_secret_and_timestamp.secret = secret;
     value_to_hash = JSON.stringify( params_with_secret_and_timestamp );
-    // first hash -- this is what the client needs to derive
+    // first hash (h1) -- this is what the client needs to derive
     h1 = hash1.update(value_to_hash).digest("hex");
     // we remove some of the bits from  h1  -- this is what we give the client
     var index_last_byte = h1.length - Math.floor(puzzle_strength/4) - 1;
@@ -120,7 +119,7 @@ function check_puzzle_solution( params, claimed_solution ) {
     params_with_secret_and_timestamp.secret = secret;
     delete params_with_secret_and_timestamp.puzzle_solution;
     value_to_hash = JSON.stringify( params_with_secret_and_timestamp );
-    // first hash -- this is what the client needs to derive
+    // first hash (h1) -- this is what the client should have derived
     h1 = hash1.update(value_to_hash).digest("hex");
     return h1 === claimed_solution;
 }
@@ -165,7 +164,7 @@ app.get('/search', function(req, res)
                     if (giphy_api_key === "") 
                         var r = { "status": "success", "message": "Puzzle has been solved, but no Giphy API key has been configured so sorry for the boring result", "image_url": giphy_url };
                     else
-                        var r = { "status": "success", "message": "Puzzle has been solved!  Image served below (powered by Giphy).", "image_url": giphy_url };
+                        var r = { "status": "success", "message": "Puzzle has been solved!  Image served below (Powered by Giphy).", "image_url": giphy_url };
                     console.log(r);
                     res.send(r);
                 } );
