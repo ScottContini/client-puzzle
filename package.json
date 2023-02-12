@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "got": "^11.6.2",
+    "got": "^12.5.3",
     "request": "^2.88.2",
     "sync-request": "^6.1.0"
   }
