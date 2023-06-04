@@ -1,4 +1,6 @@
 *.swp
 node_modules
-
+**/obj/
+**/bin/
+**/.vs/
 
