@@ -1,0 +1,56 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to ClientPuzzle demo</h1>
+    <table style="background-color: lightgray">
+        <tr>
+            <td>Last puzzle state:</td>
+            <td>@Model.SolutionState</td>
+        </tr>
+        <tr>
+            <td>Target Hash:</td>
+            <td><input name="targetHash" id="targetHash" value="@Model.TargetHash" size="100" disabled /></td>
+        </tr>
+        <tr>
+            <td>
+                Puzzle to solve:
+            </td>
+            <td><input name="puzzleToSolve" id="puzzleToSolve" value="@Model.PuzzleToSolve" size="100" disabled /></td>
+        </tr>
+        <tr>
+            <td>Puzzle Strength:</td>
+            <td><input name="puzzleStrength" id="puzzleStrength" value="@Model.PuzzleStrength" size="2" disabled /></td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">Giphy image:</td>
+            <td><img src="@Model.GiphyUrl" height="300" width="300" style="visibility: @(string.IsNullOrWhiteSpace(Model.GiphyUrl) ? "hidden" : "visible")" /></td>
+        </tr>
+     </table>
+     <br />
+    <form method="get">
+         <table style="background-color: lightblue">
+             <tr>
+                 <td>
+                    Start Unix Time in seconds:
+                 </td>
+                <td><input name="startUnixTimeInSeconds" id="startUnixTimeInSeconds" value="@Model.StartUnixTimeInSeconds" /></td>
+             </tr>
+             <tr>
+                 <td>
+                    Solution:
+                </td>
+                <td><input name="solution" id="solution" value="" size="100" /></td>
+            </tr>
+            <tr>
+                <td>
+                    Actions
+                </td>
+                <td><button type="button" onclick="solvePuzzleOuter()">Solve</button> <button>Submit</button></td>
+            </tr>
+         </table>
+    </form>
+</div>
