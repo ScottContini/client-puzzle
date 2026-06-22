@@ -10,7 +10,7 @@ $(document).ready(function(){
         event.preventDefault(); //prevent default action
         var url = $(this).attr("action"); //get form action url
         var form_data = $(this).serialize(); //Encode form elements for submission
-        $('#server-response').html('Solving puzzle...'); 
+        $('#server-response').html('Solving puzzle...');
         $.get( url, form_data, function( response ) {
             var target_hash = response.target_hash;
             var puzzle_to_solve= response.puzzle_to_solve;
@@ -36,7 +36,7 @@ $(document).ready(function(){
                     break;
                 }
             }
-            
+
             if (puzzle_solution==="") {
                 $('#server-response').html("Uh oh, something's broken!!!");
             }
@@ -47,8 +47,12 @@ $(document).ready(function(){
                     console.log(response2);
                     var message = response2.message;
                     var giphy_url = response2.image_url;
-                    $('#server-response').html(message);
-                    $('#giphy-image').html('<img src="'+giphy_url+'">');
+                    $('#server-response').text(message);
+                    if (giphy_url) {
+                        var img = $('<img>');
+                        img.attr('src', giphy_url);
+                        $('#giphy-image').empty().append(img);
+                    }
                 });
             }
        });
@@ -66,7 +70,7 @@ $(document).ready(function(){
 
 <p>Enter search term and click "Submit" to submit the form:</p>
 
-<form id="get_request_form" action="http://127.0.0.1:5000/search" method="get">
+<form id="get_request_form" action="/search" method="get">
   <div>
   Enter a search string: <input type="text" name="search"><br><br>
   </div>
@@ -76,7 +80,6 @@ $(document).ready(function(){
   <div id="server-response"> </div> <br>
   <div id="giphy-image"> </div>
 </form>
-
 
 
 
